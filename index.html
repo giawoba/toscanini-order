@@ -711,19 +711,42 @@ function renderAgg(all){
   if(dup.length)h+='<p class="hint">提醒:'+[...new Set(dup)].map(esc).join('、')+' 送出了多筆,已自動採用最後一筆。</p>';
   out.innerHTML=h;
 }
+const CAT_OF={};
+MENU.forEach(c=>c.items.forEach(it=>{CAT_OF[it.n]=c.id}));
+function fieldsOf(x){
+  const d=x.d||'';
+  const set = x.s!=null ? !!x.s : d.indexOf('套餐+149')>-1;
+  return {
+    set,
+    pf: x.pf!=null ? !!x.pf : d.indexOf('酥皮')>-1,
+    dr: x.dr!=null ? x.dr : (set?(d.match(/\[(?:熱|冰)\][^、;]*/)||[''])[0]:''),
+    ds: x.ds!=null ? x.ds : (set?(d.match(/乳酪蛋糕|生乳蛋糕/)||['甜點'])[0]:''),
+    nt: x.nt!=null ? x.nt : (d.match(/備註[:：]([^;]*)/)||['',''])[1]
+  };
+}
 function exportExcel(){
   if(!lastOrders.length){toast('目前沒有訂單可匯出');return;}
   const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
   const rows=[['姓名','主餐','+149元套餐','+55元濃湯升級酥皮','套餐飲料','套餐甜點','備註 / 加點']];
   lastOrders.forEach(o=>{
-    o.i.forEach(x=>{
-      const d=x.d||'';
-      const set = x.s!=null ? !!x.s : d.indexOf('套餐+149')>-1;
-      const pf  = x.pf!=null ? !!x.pf : d.indexOf('酥皮')>-1;
-      const dr  = x.dr!=null ? x.dr : (set?(d.match(/\[(?:熱|冰)\][^、;]*/)||[''])[0]:'');
-      const ds  = x.ds!=null ? x.ds : (set?(d.match(/乳酪蛋糕|生乳蛋糕/)||['甜點'])[0]:'');
-      const nt  = x.nt!=null ? x.nt : (d.match(/備註[:：]([^;]*)/)||['',''])[1];
-      rows.push([o.n||'(未填)', x.m+(x.q>1?' ×'+x.q:''), set?'V':'X', pf?'V':'X', dr, ds, nt]);
+    // 主餐(可升級套餐的類別)一列一筆;其餘品項視為加點,併入備註欄
+    const mains=[],extras=[];
+    o.i.forEach(x=>{(SET_ELIGIBLE.has(CAT_OF[x.m])?mains:extras).push(x)});
+    const extraTxt=extras.map(x=>{
+      let t=x.m+(x.q>1?'×'+x.q:'');
+      const nt=fieldsOf(x).nt;
+      if(nt)t+='('+nt+')';
+      return t;
+    }).join('、');
+    if(!mains.length){
+      rows.push([o.n||'(未填)','','X','X','','',extraTxt?('加點:'+extraTxt):'']);
+      return;
+    }
+    mains.forEach((x,i)=>{
+      const f=fieldsOf(x);
+      let note=f.nt;
+      if(i===0&&extraTxt)note=(note?note+';':'')+'加點:'+extraTxt;
+      rows.push([o.n||'(未填)', x.m+(x.q>1?' ×'+x.q:''), f.set?'V':'X', f.pf?'V':'X', f.dr, f.ds, note]);
     });
   });
   const csv=rows.map(r=>r.map(q).join(',')).join('\r\n');
