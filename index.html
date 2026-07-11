@@ -1,0 +1,693 @@
+<title>托斯卡尼尼・線上預點餐</title>
+<style>
+:root{
+  --paper:#F7F5EF; --card:#FFFFFF; --ink:#233230; --ink-2:#5A6B67; --line:#DDDAD0;
+  --teal:#0E6E70; --teal-soft:#E2EEEC; --teal-ink:#0A5254;
+  --tomato:#B8432B; --tomato-soft:#F6E5DF;
+  --basil:#4C7A3F; --basil-soft:#E7EFE1;
+  --nut:#96691C; --nut-soft:#F4EBD8;
+  --shadow:0 10px 30px rgba(35,50,48,.10);
+  --on-accent:#FFFFFF;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --paper:#141D1C; --card:#1C2726; --ink:#E8E6DD; --ink-2:#9AA8A4; --line:#31403D;
+    --teal:#5CB8B5; --teal-soft:#1E3534; --teal-ink:#8ED4D1;
+    --tomato:#E08A74; --tomato-soft:#3A2620;
+    --basil:#9CC78B; --basil-soft:#243322;
+    --nut:#D9B36A; --nut-soft:#37301E;
+    --shadow:0 10px 30px rgba(0,0,0,.35);
+    --on-accent:#0F1B1A;
+  }
+}
+:root[data-theme="light"]{
+  --paper:#F7F5EF; --card:#FFFFFF; --ink:#233230; --ink-2:#5A6B67; --line:#DDDAD0;
+  --teal:#0E6E70; --teal-soft:#E2EEEC; --teal-ink:#0A5254;
+  --tomato:#B8432B; --tomato-soft:#F6E5DF;
+  --basil:#4C7A3F; --basil-soft:#E7EFE1;
+  --nut:#96691C; --nut-soft:#F4EBD8;
+  --shadow:0 10px 30px rgba(35,50,48,.10);
+  --on-accent:#FFFFFF;
+}
+:root[data-theme="dark"]{
+  --paper:#141D1C; --card:#1C2726; --ink:#E8E6DD; --ink-2:#9AA8A4; --line:#31403D;
+  --teal:#5CB8B5; --teal-soft:#1E3534; --teal-ink:#8ED4D1;
+  --tomato:#E08A74; --tomato-soft:#3A2620;
+  --basil:#9CC78B; --basil-soft:#243322;
+  --nut:#D9B36A; --nut-soft:#37301E;
+  --shadow:0 10px 30px rgba(0,0,0,.35);
+  --on-accent:#0F1B1A;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  font-size:16px; line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+.serif{font-family:"Noto Serif TC","PMingLiU",Georgia,serif}
+.wrap{max-width:720px;margin:0 auto;padding:0 16px 120px}
+header.site{
+  padding:28px 0 14px; border-bottom:2px solid var(--teal);
+  display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;
+}
+.brand{display:flex;flex-direction:column;gap:2px}
+.brand .eyebrow{font-size:12px;letter-spacing:.22em;color:var(--teal);font-weight:700;text-transform:uppercase}
+.brand h1{margin:0;font-size:26px;font-weight:700;letter-spacing:.04em}
+.brand .sub{font-size:13px;color:var(--ink-2)}
+.tabs{
+  position:sticky;top:0;z-index:30;background:var(--paper);
+  display:flex;gap:6px;padding:10px 0;border-bottom:1px solid var(--line);
+}
+.tab{
+  flex:1;border:1px solid var(--line);background:var(--card);color:var(--ink-2);
+  padding:9px 6px;border-radius:999px;font-size:14px;font-weight:600;cursor:pointer;text-align:center;
+}
+.tab.on{background:var(--teal);border-color:var(--teal);color:var(--on-accent)}
+.tab .n{display:inline-block;min-width:20px;padding:0 6px;margin-left:4px;border-radius:999px;background:rgba(255,255,255,.25);font-size:12px}
+section.page{display:none}
+section.page.on{display:block}
+.notice{
+  margin:16px 0;border:1px solid var(--line);border-radius:var(--r);background:var(--card);
+  padding:0;overflow:hidden;
+}
+.notice summary{
+  cursor:pointer;list-style:none;padding:12px 16px;font-weight:700;font-size:14px;color:var(--teal-ink);
+  display:flex;align-items:center;gap:8px;
+}
+.notice summary::before{content:"※";color:var(--teal)}
+.notice ul{margin:0;padding:0 20px 14px 34px;font-size:13.5px;color:var(--ink-2)}
+.notice li{margin:4px 0}
+.cat-nav{
+  position:sticky;top:56px;z-index:25;background:var(--paper);
+  display:flex;gap:8px;overflow-x:auto;padding:10px 0;border-bottom:1px solid var(--line);
+  scrollbar-width:none;
+}
+.cat-nav::-webkit-scrollbar{display:none}
+.chip{
+  flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink-2);
+  padding:6px 14px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;
+}
+.chip.on{border-color:var(--teal);color:var(--teal);background:var(--teal-soft)}
+h2.cat{
+  margin:30px 0 4px;font-size:20px;font-weight:700;color:var(--ink);
+  display:flex;align-items:baseline;gap:10px;
+}
+h2.cat .en{font-size:12px;letter-spacing:.18em;color:var(--teal);text-transform:uppercase;font-weight:700}
+.cat-note{margin:0 0 10px;font-size:13px;color:var(--ink-2)}
+.menu-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.item{
+  display:flex;align-items:center;gap:12px;padding:13px 14px;cursor:pointer;
+  border-top:1px solid var(--line);
+}
+.item:first-child{border-top:none}
+.item:hover{background:var(--teal-soft)}
+.item .info{flex:1;min-width:0}
+.item .name{font-weight:600;font-size:15.5px}
+.item .meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:3px}
+.badge{font-size:11px;padding:1px 7px;border-radius:4px;font-weight:700;letter-spacing:.05em}
+.b-spicy{color:var(--tomato);background:var(--tomato-soft)}
+.b-veg{color:var(--basil);background:var(--basil-soft)}
+.b-nut{color:var(--nut);background:var(--nut-soft)}
+.b-new{color:var(--teal-ink);background:var(--teal-soft)}
+.b-info{color:var(--ink-2);background:var(--paper);border:1px solid var(--line)}
+.item .price{font-weight:700;font-variant-numeric:tabular-nums;color:var(--teal-ink);font-size:15.5px}
+.item .add{
+  flex:0 0 auto;width:30px;height:30px;border-radius:999px;border:1.5px solid var(--teal);
+  color:var(--teal);background:transparent;font-size:18px;line-height:1;cursor:pointer;font-weight:700;
+}
+.cartbar{
+  position:fixed;left:0;right:0;bottom:0;z-index:40;
+  background:var(--card);border-top:1px solid var(--line);box-shadow:0 -8px 24px rgba(0,0,0,.12);
+}
+.cartbar .in{max-width:720px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:12px}
+.cartbar .sum{flex:1;font-size:14px;color:var(--ink-2)}
+.cartbar .sum b{display:block;font-size:18px;color:var(--ink);font-variant-numeric:tabular-nums}
+.btn{
+  border:none;border-radius:10px;padding:11px 20px;font-size:15px;font-weight:700;cursor:pointer;
+  background:var(--teal);color:var(--on-accent);
+}
+.btn.ghost{background:transparent;color:var(--teal);border:1.5px solid var(--teal)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.small{padding:7px 14px;font-size:13.5px;border-radius:8px}
+/* modal */
+.overlay{
+  position:fixed;inset:0;background:rgba(15,25,24,.55);z-index:60;display:none;
+  align-items:flex-end;justify-content:center;
+}
+.overlay.on{display:flex}
+.sheet{
+  background:var(--card);width:100%;max-width:720px;max-height:88vh;overflow-y:auto;
+  border-radius:18px 18px 0 0;padding:20px 20px 26px;
+}
+.sheet h3{margin:0 0 2px;font-size:19px}
+.sheet .p{color:var(--teal-ink);font-weight:700;font-variant-numeric:tabular-nums}
+.sheet .warn{
+  margin:10px 0 0;padding:9px 12px;border-radius:8px;font-size:13px;
+  background:var(--nut-soft);color:var(--nut);font-weight:600;
+}
+.sheet .warn.red{background:var(--tomato-soft);color:var(--tomato)}
+.fgroup{margin-top:18px}
+.fgroup>label.t{display:block;font-size:13px;font-weight:700;color:var(--ink-2);letter-spacing:.08em;margin-bottom:8px}
+.optrow{display:flex;gap:8px;flex-wrap:wrap}
+.opt{
+  border:1.5px solid var(--line);background:var(--paper);border-radius:9px;padding:8px 14px;
+  font-size:14px;cursor:pointer;font-weight:600;color:var(--ink-2);
+}
+.opt.on{border-color:var(--teal);color:var(--teal-ink);background:var(--teal-soft)}
+.opt.dis{opacity:.35;pointer-events:none}
+.switch{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;cursor:pointer;background:var(--paper);
+}
+.switch.on{border-color:var(--teal);background:var(--teal-soft)}
+.switch .l{font-size:14.5px;font-weight:600}
+.switch .l small{display:block;font-weight:400;color:var(--ink-2);font-size:12.5px}
+.knob{flex:0 0 auto;width:40px;height:23px;border-radius:999px;background:var(--line);position:relative;transition:background .15s}
+.knob::after{content:"";position:absolute;top:2.5px;left:3px;width:18px;height:18px;border-radius:999px;background:var(--card);transition:left .15s}
+.switch.on .knob{background:var(--teal)}
+.switch.on .knob::after{left:19px}
+select,input[type=text],textarea{
+  width:100%;border:1.5px solid var(--line);border-radius:9px;background:var(--paper);color:var(--ink);
+  padding:10px 12px;font-size:15px;font-family:inherit;
+}
+select:focus,input:focus,textarea:focus,.opt:focus-visible,.btn:focus-visible,.tab:focus-visible{outline:2px solid var(--teal);outline-offset:1px}
+.qty{display:flex;align-items:center;gap:14px}
+.qty button{
+  width:36px;height:36px;border-radius:999px;border:1.5px solid var(--teal);background:transparent;
+  color:var(--teal);font-size:19px;font-weight:700;cursor:pointer;line-height:1;
+}
+.qty b{font-size:18px;min-width:24px;text-align:center;font-variant-numeric:tabular-nums}
+.sheet .foot{display:flex;gap:10px;margin-top:22px;align-items:center}
+.sheet .foot .total{flex:1;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums}
+/* my order */
+.field{margin:16px 0}
+.field label{display:block;font-size:13px;font-weight:700;color:var(--ink-2);margin-bottom:6px;letter-spacing:.06em}
+.lines{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-top:14px}
+.line{padding:13px 14px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:flex-start}
+.line:first-child{border-top:none}
+.line .d{flex:1;min-width:0}
+.line .nm{font-weight:600;font-size:15px}
+.line .ds{font-size:13px;color:var(--ink-2);margin-top:2px;white-space:pre-line}
+.line .pr{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.line .qbox{display:flex;align-items:center;gap:8px;margin-top:8px}
+.line .qbox button{width:26px;height:26px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;font-weight:700;line-height:1}
+.line .qbox b{font-variant-numeric:tabular-nums}
+.empty{padding:34px 20px;text-align:center;color:var(--ink-2);font-size:14.5px}
+.totalrow{display:flex;justify-content:space-between;padding:14px;font-weight:700;font-size:16.5px;border-top:2px solid var(--teal);font-variant-numeric:tabular-nums}
+pre.out{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  padding:14px;font-size:13px;line-height:1.6;white-space:pre-wrap;word-break:break-all;
+  font-family:ui-monospace,Consolas,monospace;max-height:300px;overflow:auto;
+}
+.hint{font-size:13px;color:var(--ink-2);margin:8px 0}
+.toast{
+  position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(8px);z-index:80;
+  background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:999px;font-size:14px;font-weight:600;
+  opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;
+}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+/* summary */
+table.sum{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;font-size:14px}
+table.sum th,table.sum td{padding:9px 12px;border-top:1px solid var(--line);text-align:left;vertical-align:top}
+table.sum thead th{border-top:none;background:var(--teal-soft);color:var(--teal-ink);font-size:12.5px;letter-spacing:.08em}
+table.sum td.num,table.sum th.num{text-align:right;font-variant-numeric:tabular-nums}
+.tablebox{overflow-x:auto;margin-top:12px;border-radius:var(--r)}
+h3.sec{margin:26px 0 6px;font-size:16.5px}
+@media (prefers-reduced-motion: reduce){ *{transition:none !important} }
+</style>
+
+<div class="wrap">
+  <header class="site">
+    <div class="brand">
+      <span class="eyebrow serif">Toscanini · Italian Restaurant</span>
+      <h1 class="serif">托斯卡尼尼 線上預點餐</h1>
+      <span class="sub">選好餐點 → 按「送出訂單」就完成,主揪會統一彙整訂餐</span>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab on" id="tab-menu" onclick="showPage('menu')">菜單點餐</button>
+    <button class="tab" id="tab-cart" onclick="showPage('cart')">我的訂單<span class="n" id="cartCount" hidden>0</span></button>
+    <button class="tab" id="tab-agg" onclick="showPage('agg')">彙總統計</button>
+  </nav>
+
+  <!-- ============ 點餐頁 ============ -->
+  <section class="page on" id="page-menu">
+    <details class="notice">
+      <summary>點餐前請看:餐廳注意事項</summary>
+      <ul>
+        <li><b>升級套餐 +149 元</b>:附麵包、濃湯、甜點、飲料(價值 $300)。<b>套餐務必選擇飲料與甜點</b>。</li>
+        <li>套餐濃湯預設為<b>雞蓉蘑菇濃湯</b>,可更換鄉村蔬菜湯;兩種湯皆可 <b>+55 元升級千層酥皮濃湯</b>。</li>
+        <li>飲料本身為<b>少冰、可去冰</b>;甜度固定無法調整。無糖飲品:冰拿鐵、冰美式、熱拿鐵、義大利醇品咖啡(熱)、義大利花茶(熱)。</li>
+        <li><b>焗烤起士海鮮</b>需註明「飯 或 斜管麵」及「鮮奶 或 紅茄口味」;<b>紅茄口味只提供烤海鮮飯</b>。</li>
+        <li><b>吃素</b>請在該筆餐點勾選:套餐麵包的鮪魚醬會自動換成素奶油,濃湯自動改鄉村蔬菜湯。</li>
+        <li><b>青醬類餐點與法式焗田螺含堅果</b>,對堅果過敏請留意。</li>
+        <li>波隆那經典肉醬為<b>牛(80%)、豬(20%)混合</b>熬煮。</li>
+      </ul>
+    </details>
+    <nav class="cat-nav" id="catNav"></nav>
+    <div id="menuList"></div>
+  </section>
+
+  <!-- ============ 我的訂單 ============ -->
+  <section class="page" id="page-cart">
+    <div class="field">
+      <label for="userName">你的姓名(必填,會顯示在訂單上)</label>
+      <input type="text" id="userName" placeholder="例:王小明" maxlength="20">
+    </div>
+    <div class="lines" id="cartList"></div>
+    <h3 class="sec">確認送出</h3>
+    <p class="hint">按「送出訂單」就完成了!訂單會直接回傳給主揪。送出後仍可修改內容再送一次,主揪會以你<b>最後一筆</b>為準。</p>
+    <pre class="out" id="orderText">(尚未產生)</pre>
+    <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
+      <button class="btn" id="sendBtn" onclick="submitOrder()">送出訂單</button>
+      <button class="btn ghost" onclick="copyOrder()">複製訂單(備援)</button>
+      <button class="btn ghost" onclick="clearCart()">清空重點</button>
+    </div>
+    <p class="hint" id="sentStatus"></p>
+  </section>
+
+  <!-- ============ 彙總統計 ============ -->
+  <section class="page" id="page-agg">
+    <p class="hint" style="margin-top:16px">主揪專用:打開 Google 表單的「回應」試算表,<b>全選(Ctrl+A)複製整張表</b>貼進下方即可;也可以貼群組裡大家用「複製訂單」產生的文字,兩種混貼都行。同一個人送出多筆時,自動採用<b>最後一筆</b>。</p>
+    <textarea id="aggInput" rows="8" placeholder="把試算表內容或大家的訂單訊息全部貼在這裡…"></textarea>
+    <div style="display:flex;gap:10px;margin-top:12px">
+      <button class="btn" onclick="runAgg()">開始彙總</button>
+      <button class="btn ghost" onclick="document.getElementById('aggInput').value=''">清空</button>
+    </div>
+    <div id="aggResult"></div>
+  </section>
+</div>
+
+<div class="cartbar" id="cartbar" hidden>
+  <div class="in">
+    <div class="sum">目前共 <span id="barQty">0</span> 份<b id="barTotal">$0</b></div>
+    <button class="btn" onclick="showPage('cart')">查看我的訂單</button>
+  </div>
+</div>
+
+<!-- 品項選項 sheet -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeSheet()">
+  <div class="sheet" role="dialog" aria-modal="true" id="sheetBody"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= 訂單回傳(Google 表單) ================= */
+const FORM_URL='https://docs.google.com/forms/d/e/1FAIpQLSeNILAmMja7A5Way1oordXLJ1SSdyaZCuJYKtW_ABAzhcabuA/formResponse';
+const ENTRY={name:'entry.1432339923',content:'entry.514298521',total:'entry.665170613',code:'entry.1369036076'};
+
+/* ================= 菜單資料(2026/3/30 官網版) ================= */
+const SET_PRICE=149, PUFF=55, SET_ELIGIBLE=new Set(['pasta','cream','oil','veg','pesto','gratin','season','risotto','steak','pizza']);
+const DRINKS_HOT=['皇家熱水果茶','伯爵熱奶茶','義大利醇品咖啡(無糖)','熱夏威夷火山黑鹽咖啡','熱拿鐵(無糖)','義大利花茶(無糖)','桂圓紅棗養生茶','朝鮮黃金熱柚茶'];
+const DRINKS_ICE=['奇亞籽檸檬冰茶','熱帶果漾冰茶(新)','檸檬冰柚','冰拿鐵(無糖)','冰美式(無糖)','凍檸可樂','古坑農會柳丁汁','果韻奶茶(新)'];
+const MENU=[
+ {id:'salad',cn:'元氣沙拉',en:'Fresh Salad',items:[
+  {n:'普羅旺斯田園沙拉(胡麻醬)',p:290,veg:1,nut:1},
+  {n:'芒果優格水果沙拉',p:330,veg:1,nut:1},
+  {n:'煙燻櫻桃鴨沙拉(油醋醬)',p:350},
+  {n:'培根大凱薩沙拉',p:290},
+ ]},
+ {id:'app',cn:'佛羅倫斯小點',en:'Appetizer',items:[
+  {n:'派對分享大拼盤(薯條/魷魚圈/辣雞翅/炸魚條)',p:650},
+  {n:'匈牙利帶皮薯條',p:130},
+  {n:'黃金炸薯條',p:115},
+  {n:'金莎芋泥小米糰',p:180},
+  {n:'義式炸魚條',p:235},
+  {n:'酥炸黑墨鮮魷圈',p:235},
+  {n:'羅馬辣雞翅',p:290,spicy:1},
+  {n:'南義煙燻奶油淡菜',p:280},
+  {n:'法式焗田螺',p:180,nut:1},
+ ]},
+ {id:'pizza',cn:'厚片脆皮披薩',en:'Pizza',items:[
+  {n:'海鮮總匯披薩',p:450},
+  {n:'香蒜櫻桃鴨披薩',p:450},
+  {n:'瑪格莉特披薩',p:350},
+  {n:'夏威夷海陸披薩',p:450},
+ ]},
+ {id:'pasta',cn:'義大利麵・瑪麗娜拉紅醬',en:'Tomato Sauce',items:[
+  {n:'托斯卡納奶醬軟殼蟹義大利麵',p:420,nw:1,note:'每日限量供應'},
+  {n:'馬賽漁港紅茄海鮮',p:385},
+  {n:'紅茄義式香料雞腿',p:360},
+  {n:'波隆那經典肉醬',p:320,note:'牛80%+豬20%混合'},
+ ]},
+ {id:'cream',cn:'義大利麵・肯迪亞法國奶醬',en:'Milk Sauce',items:[
+  {n:'肯迪亞法國奶油培根',p:290},
+  {n:'粉紅醬明太子鮮蝦',p:420},
+  {n:'西西里干貝醬海鮮',p:420},
+  {n:'肯迪亞法國奶油蛤蜊',p:305},
+  {n:'肯迪亞煙燻奶油鮭魚',p:360},
+  {n:'肯迪亞香檸奶油雞',p:330},
+ ]},
+ {id:'oil',cn:'義大利麵・墨汁醬/橄欖油清炒',en:'Cuttlefish / Olive Oil',items:[
+  {n:'火烤墨魚黑汁義大利麵',p:420},
+  {n:'蒜香白酒蛤蜊',p:290},
+  {n:'義大利農莊辣味雞',p:295,spicy:1},
+  {n:'香蒜辣椒櫻桃鴨',p:360,spicy:1},
+  {n:'拿坡里辣味海鮮麵',p:375,spicy:1},
+  {n:'辣炒干貝XO醬',p:355,spicy:1},
+ ]},
+ {id:'veg',cn:'蔬食義大利麵',en:'Vegetarian',items:[
+  {n:'紅茄蘑菇',p:270,veg:1},
+  {n:'蔬菜橄欖',p:270,veg:1},
+ ]},
+ {id:'pesto',cn:'羅勒松子青醬(含堅果)',en:'Pesto Sauce',items:[
+  {n:'羅勒松子青醬海鮮總匯',p:385,nut:1},
+  {n:'羅勒松子青醬雞肉',p:330,nut:1},
+  {n:'羅勒松子青醬蛤蜊',p:315,nut:1},
+ ]},
+ {id:'gratin',cn:'焗烤',en:'Gratin',items:[
+  {n:'焗烤起士海鮮',p:420,gratin:1,note:'需選 飯/斜管麵 及 鮮奶/紅茄口味'},
+ ]},
+ {id:'season',cn:'期間限定',en:'Seasonal',items:[
+  {n:'托斯卡納奶醬櫛瓜義大利麵',p:330,nw:1,note:'鍋邊素(非全素)'},
+ ]},
+ {id:'risotto',cn:'義大利燉飯',en:'Risotto',items:[
+  {n:'牛肝菌野菇燉飯',p:360,veg:1,note:'奶素'},
+  {n:'黑松露野菇燉飯',p:385,veg:1,note:'奶素'},
+  {n:'羅勒松子青醬雞肉燉飯',p:335,nut:1},
+  {n:'火烤墨魚黑汁燉飯',p:420},
+  {n:'火烤辣味雞番茄燉飯',p:380,spicy:1,nw:1},
+  {n:'西班牙海鮮燉飯',p:390},
+  {n:'XO醬櫻桃鴨燉飯',p:375},
+ ]},
+ {id:'steak',cn:'經典排餐',en:'Classic',items:[
+  {n:'日耳曼德國豬腳',p:650},
+  {n:'馬可波羅爐烤豬肋排',p:670},
+  {n:'炙烤鱸魚排佐托斯卡納番茄奶醬',p:520,nw:1},
+  {n:'炙燒粉紅醬雞腿排',p:485},
+ ]},
+ {id:'soup',cn:'主廚濃湯・甜點(單點)',en:'Soup & Dessert',items:[
+  {n:'千層酥皮濃湯',p:135},
+  {n:'雞蓉蘑菇濃湯',p:80},
+  {n:'鄉村蔬菜湯',p:80,veg:1},
+  {n:'義式精緻甜點',p:80},
+ ]},
+ {id:'drink',cn:'飲品(單點)',en:'Drink',items:
+   DRINKS_HOT.map(d=>({n:'[熱] '+d,p:120,drink:1}))
+   .concat(DRINKS_ICE.map(d=>({n:'[冰] '+d,p:120,drink:1,ice:1})))
+ },
+ {id:'beer',cn:'嚴選精釀啤酒 330ml',en:'Craft Beer',items:[
+  {n:'呂根島 East Coast IPA(蜜香契努克啤酒花)',p:260},
+  {n:'呂根島 Insel Kreide(波羅地海香檳酵母)',p:260},
+  {n:'呂根島 Baltic Dubbel(黑麥修道院酵母)',p:260},
+ ],note:'禁止酒駕,飲酒過量有害健康'},
+];
+MENU.forEach(c=>c.items.forEach((it,i)=>{it.cat=c.id;it.idx=i;}));
+const findItem=(cat,idx)=>MENU.find(c=>c.id===cat).items[idx];
+
+/* ================= 狀態 ================= */
+let cart=[];
+try{cart=JSON.parse(localStorage.getItem('tos_cart')||'[]')}catch(e){cart=[]}
+const $=id=>document.getElementById(id);
+const nameEl=()=>$('userName');
+try{$('userName').value=localStorage.getItem('tos_name')||''}catch(e){}
+function persist(){try{localStorage.setItem('tos_cart',JSON.stringify(cart));localStorage.setItem('tos_name',nameEl().value.trim())}catch(e){}}
+
+/* ================= 菜單渲染 ================= */
+function badges(it){
+  let h='';
+  if(it.nw)h+='<span class="badge b-new">新品</span>';
+  if(it.spicy)h+='<span class="badge b-spicy">辣</span>';
+  if(it.veg)h+='<span class="badge b-veg">素</span>';
+  if(it.nut)h+='<span class="badge b-nut">含堅果</span>';
+  if(it.note)h+='<span class="badge b-info">'+it.note+'</span>';
+  return h;
+}
+function renderMenu(){
+  $('catNav').innerHTML=MENU.map(c=>'<button class="chip" data-c="'+c.id+'" onclick="jumpCat(\''+c.id+'\')">'+c.cn+'</button>').join('');
+  $('menuList').innerHTML=MENU.map(c=>
+    '<div id="cat-'+c.id+'"><h2 class="cat serif">'+c.cn+'<span class="en">'+c.en+'</span></h2>'+
+    (c.note?'<p class="cat-note">'+c.note+'</p>':'')+
+    (SET_ELIGIBLE.has(c.id)?'<p class="cat-note">此類主餐可 +149 升級套餐(麵包+濃湯+甜點+飲料)</p>':'')+
+    '<div class="menu-card">'+
+    c.items.map(it=>
+      '<div class="item" onclick="openSheet(\''+c.id+'\','+it.idx+')" role="button" tabindex="0" onkeydown="if(event.key===\'Enter\')openSheet(\''+c.id+'\','+it.idx+')">'+
+      '<div class="info"><div class="name">'+it.n+'</div><div class="meta">'+badges(it)+'</div></div>'+
+      '<div class="price">$'+it.p+'</div><button class="add" aria-label="加入" tabindex="-1">+</button></div>'
+    ).join('')+'</div></div>'
+  ).join('');
+}
+function jumpCat(id){
+  document.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x.dataset.c===id));
+  const el=$('cat-'+id);
+  const y=el.getBoundingClientRect().top+window.scrollY-110;
+  window.scrollTo({top:y,behavior:'smooth'});
+}
+
+/* ================= 選項 sheet ================= */
+let cur=null; // {cat,idx,qty,set,soup,puff,drink,noIce,gBase,gSauce,vegN,note}
+function openSheet(cat,idx){
+  const it=findItem(cat,idx);
+  cur={cat,idx,qty:1,set:false,soup:'雞蓉蘑菇濃湯',puff:false,drink:'',noIce:false,gBase:it.gratin?'斜管麵':'',gSauce:it.gratin?'鮮奶口味':'',vegN:false,note:''};
+  drawSheet();
+  $('overlay').classList.add('on');
+  document.body.style.overflow='hidden';
+}
+function closeSheet(){$('overlay').classList.remove('on');document.body.style.overflow='';}
+function drawSheet(){
+  const it=findItem(cur.cat,cur.idx);
+  const eligible=SET_ELIGIBLE.has(cur.cat);
+  let h='<h3>'+it.n+' <span class="p">$'+it.p+'</span></h3><div class="meta">'+badges(it)+'</div>';
+  if(it.nut)h+='<div class="warn">此餐點含堅果,對堅果過敏者請避免或於備註說明。</div>';
+  if(it.n.indexOf('波隆那')>-1)h+='<div class="warn">波隆那肉醬為牛(80%)+豬(20%)混合熬煮,不吃牛/豬者請留意。</div>';
+  if(it.drink)h+='<div class="warn">飲料為少冰(可備註去冰),甜度固定無法調整。</div>';
+
+  if(it.gratin){
+    h+='<div class="fgroup"><label class="t">口味(必選)</label><div class="optrow">'+
+      ['鮮奶口味','紅茄口味'].map(s=>'<button class="opt'+(cur.gSauce===s?' on':'')+'" onclick="setG(\'sauce\',\''+s+'\')">'+s+'</button>').join('')+'</div></div>';
+    h+='<div class="fgroup"><label class="t">主體(必選)'+(cur.gSauce==='紅茄口味'?' — 紅茄口味只提供烤海鮮飯':'')+'</label><div class="optrow">'+
+      ['斜管麵','飯'].map(s=>'<button class="opt'+(cur.gBase===s?' on':'')+(cur.gSauce==='紅茄口味'&&s==='斜管麵'?' dis':'')+'" onclick="setG(\'base\',\''+s+'\')">'+s+'</button>').join('')+'</div></div>';
+  }
+
+  if(eligible){
+    h+='<div class="fgroup"><div class="switch'+(cur.set?' on':'')+'" onclick="toggleSet()" role="switch" aria-checked="'+cur.set+'" tabindex="0" onkeydown="if(event.key===\'Enter\')toggleSet()">'+
+      '<span class="l">升級套餐 +$'+SET_PRICE+'<small>麵包+濃湯+甜點+飲料(價值$300)</small></span><span class="knob"></span></div></div>';
+    if(cur.set){
+      h+='<div class="fgroup"><label class="t">套餐濃湯</label><div class="optrow">'+
+        ['雞蓉蘑菇濃湯','鄉村蔬菜湯'].map(s=>'<button class="opt'+(cur.soup===s?' on':'')+'" onclick="cur.soup=\''+s+'\';drawSheet()">'+s+'</button>').join('')+'</div>'+
+        '<div style="margin-top:8px"><div class="switch'+(cur.puff?' on':'')+'" onclick="cur.puff=!cur.puff;drawSheet()"><span class="l">濃湯升級千層酥皮 +$'+PUFF+'</span><span class="knob"></span></div></div></div>';
+      h+='<div class="fgroup"><label class="t">套餐飲料(必選)</label><select onchange="cur.drink=this.value;drawSheet()">'+
+        '<option value="">— 請選擇飲料 —</option>'+
+        '<optgroup label="熱飲">'+DRINKS_HOT.map(d=>'<option'+(cur.drink==='[熱] '+d?' selected':'')+' value="[熱] '+d+'">'+d+'</option>').join('')+'</optgroup>'+
+        '<optgroup label="冷飲(少冰,可去冰)">'+DRINKS_ICE.map(d=>'<option'+(cur.drink==='[冰] '+d?' selected':'')+' value="[冰] '+d+'">'+d+'</option>').join('')+'</optgroup>'+
+        '</select>';
+      if(cur.drink.indexOf('[冰]')===0){
+        h+='<div style="margin-top:8px"><div class="switch'+(cur.noIce?' on':'')+'" onclick="cur.noIce=!cur.noIce;drawSheet()"><span class="l">去冰<small>飲料預設少冰,甜度固定</small></span><span class="knob"></span></div></div>';
+      }
+      h+='</div>';
+      h+='<div class="fgroup"><label class="t">套餐甜點</label><div class="optrow"><button class="opt on" style="pointer-events:none">義式精緻甜點(店家當日提供)</button></div></div>';
+      h+='<div class="fgroup"><div class="switch'+(cur.vegN?' on':'')+'" onclick="cur.vegN=!cur.vegN;drawSheet()"><span class="l">我吃素<small>麵包鮪魚醬→素奶油、濃湯→鄉村蔬菜湯(自動註記)</small></span><span class="knob"></span></div></div>';
+    }
+  }
+  h+='<div class="fgroup"><label class="t">備註(過敏、去冰、不吃牛…)</label><input type="text" maxlength="60" value="'+cur.note.replace(/"/g,'&quot;')+'" oninput="cur.note=this.value"></div>';
+  h+='<div class="fgroup"><label class="t">數量</label><div class="qty"><button onclick="cur.qty=Math.max(1,cur.qty-1);drawSheet()" aria-label="減少">−</button><b>'+cur.qty+'</b><button onclick="cur.qty++;drawSheet()" aria-label="增加">+</button></div></div>';
+  const unit=lineUnit(cur,it);
+  h+='<div class="foot"><span class="total">小計 $'+(unit*cur.qty)+'</span><button class="btn ghost" onclick="closeSheet()">取消</button><button class="btn" onclick="addToCart()">加入訂單</button></div>';
+  $('sheetBody').innerHTML=h;
+}
+function setG(k,v){
+  if(k==='sauce'){cur.gSauce=v;if(v==='紅茄口味')cur.gBase='飯';}
+  else cur.gBase=v;
+  drawSheet();
+}
+function toggleSet(){cur.set=!cur.set;if(cur.set&&cur.vegN)cur.soup='鄉村蔬菜湯';drawSheet();}
+function lineUnit(l,it){return it.p+(l.set?SET_PRICE+(l.puff?PUFF:0):0);}
+
+function lineDesc(l){
+  const parts=[];
+  if(l.gBase)parts.push(l.gSauce+'/'+l.gBase);
+  if(l.set){
+    let soup=(l.vegN?'鄉村蔬菜湯':l.soup)+(l.puff?'(升級酥皮+55)':'');
+    let drink=l.drink+(l.noIce?'(去冰)':'');
+    parts.push('套餐+149:'+soup+'、'+drink+'、義式甜點');
+  }
+  if(l.vegN)parts.push('吃素(鮪魚醬→素奶油'+(l.set?'、濃湯→蔬菜湯':'')+')');
+  if(l.note)parts.push('備註:'+l.note);
+  return parts.join('\n');
+}
+function addToCart(){
+  const it=findItem(cur.cat,cur.idx);
+  if(it.gratin&&(!cur.gBase||!cur.gSauce)){toast('請先選擇焗烤的口味與主體');return;}
+  if(cur.set&&!cur.drink){toast('套餐請選擇飲料');return;}
+  if(cur.set&&cur.vegN)cur.soup='鄉村蔬菜湯';
+  cart.push(JSON.parse(JSON.stringify(cur)));
+  persist();refreshCart();closeSheet();toast('已加入:'+it.n);
+}
+
+/* ================= 我的訂單 ================= */
+function money(n){return '$'+n.toLocaleString('en-US')}
+function cartTotal(){return cart.reduce((s,l)=>s+lineUnit(l,findItem(l.cat,l.idx))*l.qty,0)}
+function cartQty(){return cart.reduce((s,l)=>s+l.qty,0)}
+function refreshCart(){
+  const list=$('cartList');
+  if(!cart.length){list.innerHTML='<div class="empty">還沒有點任何餐點,回「菜單點餐」逛逛吧。</div>';}
+  else{
+    list.innerHTML=cart.map((l,i)=>{
+      const it=findItem(l.cat,l.idx);const d=esc(lineDesc(l));
+      return '<div class="line"><div class="d"><div class="nm">'+it.n+'</div>'+(d?'<div class="ds">'+d+'</div>':'')+
+        '<div class="qbox"><button onclick="chQty('+i+',-1)" aria-label="減少">−</button><b>'+l.qty+'</b><button onclick="chQty('+i+',1)" aria-label="增加">+</button>'+
+        '<button style="margin-left:6px;border:none;background:none;color:var(--tomato);cursor:pointer;font-size:13px" onclick="rmLine('+i+')">移除</button></div></div>'+
+        '<div class="pr">'+money(lineUnit(l,it)*l.qty)+'</div></div>';
+    }).join('')+'<div class="totalrow"><span>合計</span><span>'+money(cartTotal())+'</span></div>';
+  }
+  $('cartCount').hidden=!cart.length;
+  $('cartCount').textContent=cartQty();
+  $('cartbar').hidden=!cart.length;
+  $('barQty').textContent=cartQty();
+  $('barTotal').textContent=money(cartTotal());
+  buildOrderText();
+}
+function chQty(i,d){cart[i].qty=Math.max(1,cart[i].qty+d);persist();refreshCart();}
+function rmLine(i){cart.splice(i,1);persist();refreshCart();}
+function clearCart(){if(cart.length&&!confirm('確定要清空所有已點的餐點嗎?'))return;cart=[];persist();refreshCart();}
+
+function b64enc(s){const b=new TextEncoder().encode(s);let x='';b.forEach(c=>x+=String.fromCharCode(c));return btoa(x);}
+function b64dec(s){const b=atob(s);return new TextDecoder().decode(Uint8Array.from(b,c=>c.charCodeAt(0)));}
+function orderParts(){
+  const nm=nameEl().value.trim();
+  let t='🍝 托斯卡尼尼預點|'+(nm||'(未填姓名)')+'\n';
+  cart.forEach(l=>{
+    const it=findItem(l.cat,l.idx);
+    t+=l.qty+'× '+it.n+' '+money(lineUnit(l,it)*l.qty)+'\n';
+    const d=lineDesc(l);
+    if(d)t+=d.split('\n').map(x=>'　└ '+x).join('\n')+'\n';
+  });
+  t+='合計 '+money(cartTotal());
+  const payload={n:nm,t:cartTotal(),i:cart.map(l=>{
+    const it=findItem(l.cat,l.idx);
+    return {q:l.qty,m:it.n,u:lineUnit(l,it),d:lineDesc(l).replace(/\n/g,';')};
+  })};
+  return {name:nm,text:t,code:b64enc(JSON.stringify(payload)),total:cartTotal()};
+}
+function buildOrderText(){
+  if(!cart.length){$('orderText').textContent='(尚未產生:請先點餐)';return;}
+  $('orderText').textContent=orderParts().text;
+}
+function validateOrder(){
+  if(!cart.length){toast('尚未點餐');return false;}
+  if(!nameEl().value.trim()){toast('請先填姓名');nameEl().focus();return false;}
+  return true;
+}
+async function submitOrder(){
+  if(!validateOrder())return;
+  let sent=0;try{sent=+localStorage.getItem('tos_sent')||0}catch(e){}
+  if(sent&&!confirm('你之前已送出過一次訂單。再送出會新增一筆(主揪以最後一筆為準),確定要送出嗎?'))return;
+  persist();buildOrderText();
+  const o=orderParts();
+  const btn=$('sendBtn');btn.disabled=true;btn.textContent='送出中…';
+  const body=new URLSearchParams();
+  body.set(ENTRY.name,o.name);
+  body.set(ENTRY.content,o.text);
+  body.set(ENTRY.total,String(o.total));
+  body.set(ENTRY.code,o.code);
+  try{
+    await fetch(FORM_URL,{method:'POST',mode:'no-cors',body});
+    try{localStorage.setItem('tos_sent',String(Date.now()))}catch(e){}
+    markSent();
+    toast('已送出!主揪收到你的訂單了');
+  }catch(e){
+    toast('送出失敗(可能沒有網路),請改用「複製訂單」貼給主揪');
+  }
+  btn.disabled=false;btn.textContent='送出訂單';
+}
+function markSent(){
+  let sent=0;try{sent=+localStorage.getItem('tos_sent')||0}catch(e){}
+  $('sentStatus').textContent=sent?('✅ 已於 '+new Date(sent).toLocaleString('zh-TW',{hour12:false})+' 送出。如有修改可再按一次送出,主揪以最後一筆為準。'):'';
+}
+async function copyOrder(){
+  if(!validateOrder())return;
+  persist();buildOrderText();
+  const t=orderParts().text+'\n代碼:'+orderParts().code;
+  try{await navigator.clipboard.writeText(t);toast('已複製!貼給主揪吧');}
+  catch(e){
+    const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');toast('已複製!貼給主揪吧');}catch(e2){toast('複製失敗,請手動全選複製');}
+    ta.remove();
+  }
+}
+
+/* ================= 彙總 ================= */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function runAgg(){
+  const txt=$('aggInput').value;
+  const out=$('aggResult');
+  // 同時支援「代碼:xxx」行與試算表直貼的裸代碼欄位
+  const tagged=[...txt.matchAll(/代碼[:：]\s*([A-Za-z0-9+/=]+)/g)].map(m=>m[1]);
+  const bare=[...txt.matchAll(/[A-Za-z0-9+/]{40,}={0,2}/g)].map(m=>m[0]);
+  const codes=[...new Set([...tagged,...bare])];
+  if(!codes.length){out.innerHTML='<p class="hint" style="color:var(--tomato)">找不到任何訂單代碼 — 請確認貼上的內容包含試算表的「代碼」欄,或每個人完整的訂單文字。</p>';return;}
+  let all=[];let bad=0;
+  codes.forEach(c=>{
+    try{
+      const o=JSON.parse(b64dec(c));
+      if(o&&Array.isArray(o.i)&&typeof o.t==='number')all.push(o);
+    }catch(e){bad++}
+  });
+  if(!all.length){out.innerHTML='<p class="hint" style="color:var(--tomato)">代碼解析失敗,可能內容被改動,請重新複製完整的試算表內容或訂單文字。</p>';return;}
+  // 同名去重:採用最後一筆(試算表由上到下=由舊到新)
+  const byName=new Map();const dup=[];
+  all.forEach(o=>{
+    const k=(o.n||'').trim()||'(未填)';
+    if(byName.has(k))dup.push(k);
+    byName.set(k,o);
+  });
+  const orders=[...byName.values()];
+  // 每人
+  let h='<h3 class="sec">各人金額('+orders.length+' 人)</h3><div class="tablebox"><table class="sum"><thead><tr><th>姓名</th><th>內容</th><th class="num">金額</th></tr></thead><tbody>';
+  let grand=0,qty=0;
+  orders.forEach(o=>{
+    grand+=o.t;
+    const items=o.i.map(x=>{qty+=x.q;return x.q+'× '+x.m+(x.d?'<br><small style="color:var(--ink-2)">'+esc(x.d).replace(/;/g,'<br>')+'</small>':'')}).join('<br>');
+    h+='<tr><td><b>'+esc(o.n||'(未填)')+'</b></td><td>'+items+'</td><td class="num">'+money(o.t)+'</td></tr>';
+  });
+  h+='<tr><td colspan="2" style="font-weight:700">總計 '+qty+' 份</td><td class="num" style="font-weight:700">'+money(grand)+'</td></tr></tbody></table></div>';
+  // 品項統計
+  const map=new Map();
+  orders.forEach(o=>o.i.forEach(x=>{
+    const key=x.m+'||'+(x.d||'');
+    if(!map.has(key))map.set(key,{m:x.m,d:x.d||'',q:0,amt:0,who:[]});
+    const e=map.get(key);e.q+=x.q;e.amt+=x.q*x.u;e.who.push(esc(o.n||'?')+'×'+x.q);
+  }));
+  const rows=[...map.values()].sort((a,b)=>b.q-a.q);
+  h+='<h3 class="sec">品項統計(相同品項+相同選項合併)</h3><div class="tablebox"><table class="sum"><thead><tr><th class="num">數量</th><th>品項/選項</th><th>誰點的</th><th class="num">金額</th></tr></thead><tbody>';
+  rows.forEach(r=>{
+    h+='<tr><td class="num"><b>'+r.q+'</b></td><td>'+esc(r.m)+(r.d?'<br><small style="color:var(--ink-2)">'+esc(r.d).replace(/;/g,'<br>')+'</small>':'')+'</td><td>'+r.who.join('、')+'</td><td class="num">'+money(r.amt)+'</td></tr>';
+  });
+  h+='</tbody></table></div>';
+  // 給餐廳的清單
+  let rest='托斯卡尼尼 訂餐彙總(共'+qty+'份/'+money(grand)+')\n';
+  rows.forEach(r=>{rest+='・'+r.m+' ×'+r.q+(r.d?'\n　'+r.d.replace(/;/g,'、'):'')+'\n';});
+  h+='<h3 class="sec">給餐廳的訂餐清單</h3><pre class="out" id="restText">'+esc(rest)+'</pre>'+
+     '<button class="btn small" style="margin-top:10px" onclick="copyText(\'restText\')">複製餐廳清單</button>';
+  if(dup.length)h+='<p class="hint">提醒:'+[...new Set(dup)].map(esc).join('、')+' 送出了多筆,已自動採用最後一筆。</p>';
+  out.innerHTML=h;
+}
+async function copyText(id){
+  const t=$(id).textContent;
+  try{await navigator.clipboard.writeText(t);toast('已複製');}
+  catch(e){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('已複製');}
+}
+
+/* ================= 共用 ================= */
+function showPage(p){
+  ['menu','cart','agg'].forEach(x=>{
+    $('page-'+x).classList.toggle('on',x===p);
+    $('tab-'+x).classList.toggle('on',x===p);
+  });
+  $('cartbar').hidden=(p!=='menu')||!cart.length;
+  window.scrollTo({top:0});
+  if(p==='cart'){refreshCart();markSent();}
+}
+let toastTimer=null;
+function toast(msg){
+  const t=$('toast');t.textContent=msg;t.classList.add('on');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('on'),2200);
+}
+$('userName').addEventListener('input',()=>{persist();buildOrderText();});
+renderMenu();refreshCart();
+</script>
