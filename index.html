@@ -1,3 +1,6 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>托斯卡尼尼・線上預點餐</title>
 <style>
 :root{
@@ -46,7 +49,9 @@ body{
   font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
   font-size:16px; line-height:1.55;
   -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
 }
+button{touch-action:manipulation}
 .serif{font-family:"Noto Serif TC","PMingLiU",Georgia,serif}
 .wrap{max-width:720px;margin:0 auto;padding:0 16px 120px}
 header.site{
@@ -115,14 +120,14 @@ h2.cat .en{font-size:12px;letter-spacing:.18em;color:var(--teal);text-transform:
 .b-info{color:var(--ink-2);background:var(--paper);border:1px solid var(--line)}
 .item .price{font-weight:700;font-variant-numeric:tabular-nums;color:var(--teal-ink);font-size:15.5px}
 .item .add{
-  flex:0 0 auto;width:30px;height:30px;border-radius:999px;border:1.5px solid var(--teal);
-  color:var(--teal);background:transparent;font-size:18px;line-height:1;cursor:pointer;font-weight:700;
+  flex:0 0 auto;width:36px;height:36px;border-radius:999px;border:1.5px solid var(--teal);
+  color:var(--teal);background:transparent;font-size:20px;line-height:1;cursor:pointer;font-weight:700;
 }
 .cartbar{
   position:fixed;left:0;right:0;bottom:0;z-index:40;
   background:var(--card);border-top:1px solid var(--line);box-shadow:0 -8px 24px rgba(0,0,0,.12);
 }
-.cartbar .in{max-width:720px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:12px}
+.cartbar .in{max-width:720px;margin:0 auto;padding:12px 16px calc(12px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:12px}
 .cartbar .sum{flex:1;font-size:14px;color:var(--ink-2)}
 .cartbar .sum b{display:block;font-size:18px;color:var(--ink);font-variant-numeric:tabular-nums}
 .btn{
@@ -140,7 +145,7 @@ h2.cat .en{font-size:12px;letter-spacing:.18em;color:var(--teal);text-transform:
 .overlay.on{display:flex}
 .sheet{
   background:var(--card);width:100%;max-width:720px;max-height:88vh;overflow-y:auto;
-  border-radius:18px 18px 0 0;padding:20px 20px 26px;
+  border-radius:18px 18px 0 0;padding:20px 20px calc(26px + env(safe-area-inset-bottom));
 }
 .sheet h3{margin:0 0 2px;font-size:19px}
 .sheet .p{color:var(--teal-ink);font-weight:700;font-variant-numeric:tabular-nums}
@@ -171,7 +176,7 @@ h2.cat .en{font-size:12px;letter-spacing:.18em;color:var(--teal);text-transform:
 .switch.on .knob::after{left:19px}
 select,input[type=text],textarea{
   width:100%;border:1.5px solid var(--line);border-radius:9px;background:var(--paper);color:var(--ink);
-  padding:10px 12px;font-size:15px;font-family:inherit;
+  padding:11px 12px;font-size:16px;font-family:inherit; /* 16px 避免 iOS 聚焦時自動放大 */
 }
 select:focus,input:focus,textarea:focus,.opt:focus-visible,.btn:focus-visible,.tab:focus-visible{outline:2px solid var(--teal);outline-offset:1px}
 .qty{display:flex;align-items:center;gap:14px}
@@ -193,7 +198,7 @@ select:focus,input:focus,textarea:focus,.opt:focus-visible,.btn:focus-visible,.t
 .line .ds{font-size:13px;color:var(--ink-2);margin-top:2px;white-space:pre-line}
 .line .pr{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
 .line .qbox{display:flex;align-items:center;gap:8px;margin-top:8px}
-.line .qbox button{width:26px;height:26px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;font-weight:700;line-height:1}
+.line .qbox button{width:32px;height:32px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;font-weight:700;line-height:1;font-size:16px}
 .line .qbox b{font-variant-numeric:tabular-nums}
 .empty{padding:34px 20px;text-align:center;color:var(--ink-2);font-size:14.5px}
 .totalrow{display:flex;justify-content:space-between;padding:14px;font-weight:700;font-size:16.5px;border-top:2px solid var(--teal);font-variant-numeric:tabular-nums}
@@ -217,6 +222,17 @@ table.sum td.num,table.sum th.num{text-align:right;font-variant-numeric:tabular-
 .tablebox{overflow-x:auto;margin-top:12px;border-radius:var(--r)}
 h3.sec{margin:26px 0 6px;font-size:16.5px}
 @media (prefers-reduced-motion: reduce){ *{transition:none !important} }
+@media (max-width:480px){
+  .wrap{padding:0 12px 130px}
+  .brand h1{font-size:22px}
+  .brand .eyebrow{font-size:11px}
+  .item{padding:14px 12px}
+  .opt{padding:10px 16px}
+  .tab{padding:11px 4px}
+  .sheet .foot{flex-wrap:wrap}
+  .sheet .foot .total{flex-basis:100%}
+  .sheet .foot .btn{flex:1}
+}
 </style>
 
 <div class="wrap">
