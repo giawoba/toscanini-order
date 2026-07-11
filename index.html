@@ -264,7 +264,6 @@ h3.sec{margin:26px 0 6px;font-size:16.5px}
     <pre class="out" id="orderText">(尚未產生)</pre>
     <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
       <button class="btn" id="sendBtn" onclick="submitOrder()">送出訂單</button>
-      <button class="btn ghost" onclick="copyOrder()">複製訂單(備援)</button>
       <button class="btn ghost" onclick="clearCart()">清空重點</button>
     </div>
     <p class="hint" id="sentStatus"></p>
@@ -272,13 +271,18 @@ h3.sec{margin:26px 0 6px;font-size:16.5px}
 
   <!-- ============ 彙總統計 ============ -->
   <section class="page" id="page-agg">
-    <p class="hint" style="margin-top:16px">主揪專用:打開 Google 表單的「回應」試算表,<b>全選(Ctrl+A)複製整張表</b>貼進下方即可;也可以貼群組裡大家用「複製訂單」產生的文字,兩種混貼都行。同一個人送出多筆時,自動採用<b>最後一筆</b>。</p>
-    <textarea id="aggInput" rows="8" placeholder="把試算表內容或大家的訂單訊息全部貼在這裡…"></textarea>
-    <div style="display:flex;gap:10px;margin-top:12px">
-      <button class="btn" onclick="runAgg()">開始彙總</button>
-      <button class="btn ghost" onclick="document.getElementById('aggInput').value=''">清空</button>
+    <div style="display:flex;gap:10px;margin-top:16px;align-items:center;flex-wrap:wrap">
+      <button class="btn" onclick="loadSheet(true)">重新整理</button>
+      <span class="hint" id="aggStatus" style="margin:0">切到此頁會自動載入,之後每 30 秒自動更新。</span>
     </div>
     <div id="aggResult"></div>
+    <details style="margin-top:20px">
+      <summary class="hint" style="cursor:pointer">連線異常時的備援:手動貼上統計</summary>
+      <textarea id="aggInput" rows="6" placeholder="把試算表內容或訂單文字貼在這裡…" style="margin-top:8px"></textarea>
+      <div style="display:flex;gap:10px;margin-top:10px">
+        <button class="btn small" onclick="runAgg()">用貼上的內容彙總</button>
+      </div>
+    </details>
   </section>
 </div>
 
@@ -613,22 +617,52 @@ async function copyOrder(){
 
 /* ================= 彙總 ================= */
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function runAgg(){
-  const txt=$('aggInput').value;
-  const out=$('aggResult');
-  // 同時支援「代碼:xxx」行與試算表直貼的裸代碼欄位
-  const tagged=[...txt.matchAll(/代碼[:：]\s*([A-Za-z0-9+/=]+)/g)].map(m=>m[1]);
-  const bare=[...txt.matchAll(/[A-Za-z0-9+/]{40,}={0,2}/g)].map(m=>m[0]);
-  const codes=[...new Set([...tagged,...bare])];
-  if(!codes.length){out.innerHTML='<p class="hint" style="color:var(--tomato)">找不到任何訂單代碼 — 請確認貼上的內容包含試算表的「代碼」欄,或每個人完整的訂單文字。</p>';return;}
-  let all=[];let bad=0;
-  codes.forEach(c=>{
+const SHEET_ID='1mjvxniJA9DnsFrq-iI9STypFU_Us4_uMvem_PAjqKSY'; // 回應試算表(知道連結的任何人可檢視)
+let aggTimer=null;
+async function loadSheet(manual){
+  const st=$('aggStatus');
+  if(!SHEET_ID||SHEET_ID.indexOf('__')===0){st.textContent='尚未設定試算表來源,請先用下方備援手動貼上。';return;}
+  if(manual)st.textContent='載入中…';
+  try{
+    const res=await fetch('https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:json&headers=1&_='+Date.now());
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const txt=await res.text();
+    const json=JSON.parse(txt.substring(txt.indexOf('(')+1,txt.lastIndexOf(')')));
+    const cols=(json.table.cols||[]).map(c=>(c.label||'').trim());
+    let ci=cols.findIndex(l=>l.indexOf('代碼')>-1);
+    if(ci<0)ci=cols.length-1;
+    const codes=[];
+    (json.table.rows||[]).forEach(r=>{
+      const cell=r.c&&r.c[ci];
+      if(cell&&cell.v)codes.push(String(cell.v).trim());
+    });
+    renderAgg(decodeCodes(codes));
+    st.textContent='✅ 已更新 '+new Date().toLocaleTimeString('zh-TW',{hour12:false})+'(每 30 秒自動更新)';
+  }catch(e){
+    st.textContent='⚠️ 無法讀取試算表:請確認試算表已設為「知道連結的任何人可檢視」,或用下方備援手動貼上。';
+  }
+}
+function decodeCodes(codes){
+  const all=[];
+  [...new Set(codes)].forEach(c=>{
     try{
       const o=JSON.parse(b64dec(c));
       if(o&&Array.isArray(o.i)&&typeof o.t==='number')all.push(o);
-    }catch(e){bad++}
+    }catch(e){}
   });
-  if(!all.length){out.innerHTML='<p class="hint" style="color:var(--tomato)">代碼解析失敗,可能內容被改動,請重新複製完整的試算表內容或訂單文字。</p>';return;}
+  return all;
+}
+function runAgg(){
+  const txt=$('aggInput').value;
+  const tagged=[...txt.matchAll(/代碼[:：]\s*([A-Za-z0-9+/=]+)/g)].map(m=>m[1]);
+  const bare=[...txt.matchAll(/[A-Za-z0-9+/]{40,}={0,2}/g)].map(m=>m[0]);
+  const all=decodeCodes([...tagged,...bare]);
+  if(!all.length){$('aggResult').innerHTML='<p class="hint" style="color:var(--tomato)">貼上的內容裡找不到有效的訂單代碼。</p>';return;}
+  renderAgg(all);
+}
+function renderAgg(all){
+  const out=$('aggResult');
+  if(!all.length){out.innerHTML='<p class="hint">目前還沒有任何訂單,等大家送出後這裡會自動出現統計。</p>';return;}
   // 同名去重:採用最後一筆(試算表由上到下=由舊到新)
   const byName=new Map();const dup=[];
   all.forEach(o=>{
@@ -682,6 +716,8 @@ function showPage(p){
   $('cartbar').hidden=(p!=='menu')||!cart.length;
   window.scrollTo({top:0});
   if(p==='cart'){refreshCart();markSent();}
+  clearInterval(aggTimer);aggTimer=null;
+  if(p==='agg'){loadSheet(true);aggTimer=setInterval(()=>loadSheet(false),30000);}
 }
 let toastTimer=null;
 function toast(msg){
